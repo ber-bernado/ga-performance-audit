@@ -26,14 +26,14 @@ jobs:
         id: lighthouse_audit
         uses: treosh/lighthouse-ci-action@v3
         with:
-          urls: https://perf-check-test-git-test-pr-ber-bernado.vercel.app
+          urls: https://ga-performance-audit-git-perf-check-ber-bernado.vercel.app
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Cyclops
         id: cyclop_run
         run: |
           npm install -g cyclop-cli
-          cyclop-cli test -u=https://perf-check-test-git-test-pr-ber-bernado.vercel.app
+          cyclop-cli test -u=https://ga-performance-audit-git-perf-check-ber-bernado.vercel.app
       - name: Format lighthouse score
         id: format_lighthouse_score
         uses: actions/github-script@v3
