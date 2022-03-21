@@ -1,0 +1,85 @@
+name: Performance Audit
+
+on:
+  issue_comment:
+    types:
+    - created
+
+jobs:
+  generate_lighthouse_audit:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'check-perf')}}
+    steps:
+      - name: Add comment to PR
+        id: loading_comment_to_pr
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
+          number: ${{ github.event.issue.number }}
+          header: perf
+          recreate: true
+          message: |
+            Running performance audit...
+      - uses: actions/checkout@v2
+      - name: Audit preview URL with Lighthouse
+        id: lighthouse_audit
+        uses: treosh/lighthouse-ci-action@v3
+        with:
+          urls: https://perf-check-test-git-test-pr-ber-bernado.vercel.app
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+      - name: Cyclops
+        id: cyclop_run
+        run: |
+          npm install -g cyclop-cli
+          cyclop-cli test -u=https://perf-check-test-git-test-pr-ber-bernado.vercel.app
+      - name: Format lighthouse score
+        id: format_lighthouse_score
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
+          script: |
+            const result = ${{ steps.lighthouse_audit.outputs.manifest }}[0].summary
+            const links = ${{ steps.lighthouse_audit.outputs.links }}
+            const formatResult = (res) => Math.round((res * 100))
+            Object.keys(result).forEach(key => result[key] = formatResult(result[key]))
+            const score = res => res >= 90 ? '🟢' : res >= 50 ? '🟠' : '🔴'
+            const comment = [
+                `*Performance audit run on [${Object.keys(links)[0]}](${Object.keys(links)[0]})*`,
+                '## Lighthouse',
+                `⚡️ [Lighthouse report](${Object.values(links)[0]}) for the changes in this PR:`,
+                '| Category | Score |',
+                '| --- | --- |',
+                `| ${score(result.performance)} Performance | ${result.performance} |`,
+                `| ${score(result.accessibility)} Accessibility | ${result.accessibility} |`,
+                `| ${score(result['best-practices'])} Best practices | ${result['best-practices']} |`,
+                `| ${score(result.seo)} SEO | ${result.seo} |`,
+                `| ${score(result.pwa)} PWA | ${result.pwa} |`
+            ].join('\n')
+             core.setOutput("comment", comment); 
+      - name: Read CSV Cyclops
+        id: cyclop_test
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./cyclop-cli-reports/summary.csv
+      - name: Create Table
+        uses: petems/csv-to-md-table-action@master
+        id: csv-table-output
+        with:
+          csvinput: ${{ steps.cyclop_test.outputs.content }}
+      - name: Add comment to PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        id: comment_to_pr
+        with:
+          GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
+          number: ${{ github.event.issue.number }}
+          header: perf
+          recreate: true
+          message: |
+            ${{ steps.format_lighthouse_score.outputs.comment }} 
+            ## Cyclop
+            ⚡️ **Cyclop report** for the changes in this PR:
+            <img width="150" src="https://images.tokopedia.net/img/cyclop-logo.png">
+            ${{steps.csv-table-output.outputs.markdown-table}}
+
