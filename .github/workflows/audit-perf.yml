@@ -14,10 +14,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
       - name: Add comment to PR
         id: loading_comment_to_pr
         uses: actions/github-script@v6
