@@ -8,7 +8,7 @@ on:
 jobs:
   generate_perf_audit:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'check-perf')}}
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'audit-perf')}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
