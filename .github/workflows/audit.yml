@@ -27,6 +27,7 @@ jobs:
         uses: treosh/lighthouse-ci-action@v7
         with:
           urls: https://ga-performance-audit-git-perf-check-ber-bernado.vercel.app
+          budgetPath: '.github/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Cyclops
