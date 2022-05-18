@@ -1,0 +1,13 @@
+{
+  "ci": {https://github.com/ber-bernado/ga-performance-audit
+    "assert": {
+      "assertions": {
+        "first-contentful-paint": ["warn", {"maxNumericValue": 1500}],
+        "largest-contentful-paint": ["warn", {"maxNumericValue": 3000}],
+        "interactive": ["warn", {"maxNumericValue": 3500}],
+        "cumulative-layout-shift": ["warn", {"maxNumericValue": 0.002}],
+        "total-blocking-time": ["warn", {"maxNumericValue": 1800}]
+      }
+    }
+  }
+}
