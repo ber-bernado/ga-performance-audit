@@ -32,11 +32,13 @@ jobs:
           temporaryPublicStorage: true
       - name: Cyclops
         id: cyclop_run
+        if: ${{ always() }}
         run: |
           npm install -g cyclop-cli
           cyclop-cli test -u=https://ga-performance-audit-git-perf-check-ber-bernado.vercel.app
       - name: Format lighthouse score
         id: format_lighthouse_score
+        if: ${{ always() }}
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
@@ -61,6 +63,7 @@ jobs:
              core.setOutput("comment", comment); 
       - name: Format budget result
         id: budget_result
+        if: ${{ always() }}
         uses: actions/github-script@v6
         with:
             github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
@@ -84,6 +87,7 @@ jobs:
                 }
       - name: Add Budget comment to PR
         id: budget_comment_to_pr
+        if: ${{ always() }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
             GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
@@ -94,17 +98,20 @@ jobs:
                 ${{ steps.budget_result.outputs.comment }}
       - name: Read CSV Cyclops
         id: cyclop_test
+        if: ${{ always() }}
         uses: juliangruber/read-file-action@v1
         with:
           path: ./cyclop-cli-reports/summary.csv
       - name: Create Table
         uses: petems/csv-to-md-table-action@master
         id: csv-table-output
+        if: ${{ always() }}
         with:
           csvinput: ${{ steps.cyclop_test.outputs.content }}
       - name: Add comment to PR
         uses: marocchino/sticky-pull-request-comment@v2
         id: comment_to_pr
+        if: ${{ always() }}
         with:
           GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
           number: ${{ github.event.issue.number }}
