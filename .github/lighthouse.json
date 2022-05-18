@@ -1,5 +1,5 @@
 {
-  "ci": {https://github.com/ber-bernado/ga-performance-audit
+  "ci": {
     "assert": {
       "assertions": {
         "first-contentful-paint": ["warn", {"maxNumericValue": 1500}],
