@@ -28,7 +28,6 @@ jobs:
         with:
           urls: https://ga-performance-audit-git-perf-check-ber-bernado.vercel.app
           budgetPath: '.github/budget.json'
-          configPath: '.github/lighthouse.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Cyclops
