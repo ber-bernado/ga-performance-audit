@@ -64,7 +64,7 @@ jobs:
         with:
             github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
             script: |
-                const assertions = ${{ steps.lighthouse_audit.outputs.assertionResults }};
+                const assertions = ${{ steps.lighthouse_audit.outputs.assertionResults }}
                 if (!assertions.length) {
                   core.setOutput("comment", '✅ Budget met, nothing to see here');
                 } else {
