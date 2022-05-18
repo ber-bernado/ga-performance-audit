@@ -60,7 +60,6 @@ jobs:
              core.setOutput("comment", comment); 
       - name: Format budget result
         id: budget_result
-        if: ${{ always() }}
         uses: actions/github-script@v4
         with:
             github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
@@ -76,10 +75,20 @@ jobs:
                 | Actual | Expected |
                 | --- | --- |
                 | ${result.actual} | ${result.operator} ${result.expected} |
-                `;
+                `
                   }).join('---')
                   core.setOutput("comment", comment);
                 }
+      - name: Add Budget comment to PR
+        id: budget_comment_to_pr
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+            GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
+            number: ${{ github.event.issue.number }}
+            header: budget
+            recreate: true
+            message: |
+                ${{ steps.budget_result.outputs.comment }}
       - name: Read CSV Cyclops
         id: cyclop_test
         uses: juliangruber/read-file-action@v1
