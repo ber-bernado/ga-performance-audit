@@ -60,7 +60,7 @@ jobs:
              core.setOutput("comment", comment); 
       - name: Format budget result
         id: budget_result
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
             github-token: ${{secrets.LHCI_GITHUB_TOKEN}}
             script: |
@@ -70,12 +70,14 @@ jobs:
                 } else {
                   const comment = assertions.map((result) => {
                     return `
-                ❌ **${result.auditProperty || ''}.${result.auditId}** failure on [${result.url}](${result.url})
-                *${result.auditTitle}* - [docs](${result.auditDocumentationLink})
-                | Actual | Expected |
-                | --- | --- |
-                | ${result.actual} | ${result.operator} ${result.expected} |
-                `
+                      ❌ **${result.auditProperty || ''}.${result.auditId}
+                      ** failure on [${result.url}](${result.url})
+                      *${result.auditTitle}
+                      * - [docs](${result.auditDocumentationLink})
+                      | Actual | Expected |
+                      | --- | --- |
+                      | ${result.actual} | ${result.operator} ${result.expected} |
+                    `
                   }).join('---')
                   core.setOutput("comment", comment);
                 }
