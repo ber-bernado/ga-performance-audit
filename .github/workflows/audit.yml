@@ -16,7 +16,7 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Kratos!
+          body-includes: artemis
           direction: last
       - name: Get Comment
         uses: actions/github-script@v6
