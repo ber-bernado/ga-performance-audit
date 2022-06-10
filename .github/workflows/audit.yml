@@ -11,6 +11,39 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'check-perf')}}
     steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Kratos
+      - name: Get Comment
+        uses: actions/github-script@v6
+        id: get_comment
+        with:
+          script: |
+            const comment = `${{ steps.fc.outputs.comment-body }}`
+            const commentId = `${{ steps.fc.outputs.comment-id }}`
+            const urlRegex = /(https?:\/\/[^\s]+)/g
+            const host = comment.match(urlRegex)
+            github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🚦 Running Lighthouse audit...'
+            })
+            core.setOutput("host", comment[0]); 
+            core.setOutput("commentId", commentId);
+      - name: Add comment to PR
+        id: _comment_to_pr
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
+          number: ${{ github.event.issue.number }}
+          header: perf_check
+          recreate: true
+          message: |
+           ${{ steps.get_comment.outputs.host }}
       - name: Add comment to PR
         id: loading_comment_to_pr
         uses: marocchino/sticky-pull-request-comment@v2
